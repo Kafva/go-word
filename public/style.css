@@ -1,0 +1,96 @@
+:root{
+	--def-opacity: 0.7
+}
+
+@font-face {
+    font-family: "Custom";
+    src: url("/Custom.ttf");
+}
+
+@keyframes fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes fade-in-def {
+    from { opacity: 0; }
+    to   { opacity: var(--def-opacity); }
+}
+
+html {
+	background: url('/wall.jpg') no-repeat center center fixed;
+	font-family: Custom, Arial;
+	background-color: #2f343f;
+}
+
+/* Override with a smaller wallpaper if the viewport width is
+ * below or equal to 1600px
+ * Limit to Chrome with `@supports not (-moz-appearance:none)` */
+@media screen and (max-width: 1600px) {
+	html {
+		background: url('/fallback.jpg') no-repeat center center fixed;
+		-webkit-background-size: cover;
+		-o-background-size: cover;
+		background-size: cover;
+	}
+}
+
+body {
+	display: inline-flex;
+}
+img {
+	width: 20px;
+	height: 20px;
+	opacity: 0.9;
+	margin-right: 5px;
+}
+
+
+h1,h4{
+	position: fixed;
+	text-align: center;
+	color: white;
+}
+h1 {
+	animation: fade-in 0.5s;
+	font-size: 7.4vh;
+	width: 100%;
+	top: 10%;
+}
+
+h4 {
+	animation: fade-in-def 15.0s;
+	animation-delay: 8s;
+	opacity: var(--def-opacity);
+
+	font-family: Times New Roman, Arial;
+	font-weight: normal;
+	font-style: italic;
+	font-size: 3.4vh;
+	top: 30%;
+	width: 70%;
+
+	/* Centering */
+	left: 50%;
+	transform: translate(-50%, 0);
+}
+
+hover:img {
+	opacity: 1.0;
+}
+
+.item {
+    position: relative;
+}
+
+.item:hover::after {
+    content: attr(data-title);
+    padding: 5px;
+    border: 1px solid #000;
+    opacity: 0.8;
+    position: absolute;
+    top: 25px;
+    left: 5px;
+    background: #2f343f;
+    color: white;
+}
