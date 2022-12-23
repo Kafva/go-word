@@ -1,77 +1,83 @@
 package main
 
 import (
-    "flag"
-    "fmt"
-    "log"
-    "net/http"
-    "os"
-    "os/exec"
-    "path/filepath"
-    "strings"
+	"bufio"
+	"flag"
+	"html/template"
+	"log"
+	"math/rand"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
+	"time"
 )
 
-// Note: the executable must be in the same directory as the public folder
-var CWD string = GetCwd()
-var SHUF_CMD string = GetShufPath()
+const WEBROOT = "./public"
+const WORD_LIST = "./words.txt"
+const DEFAULT_PORT = 2112
+const DEFAULT_ADDR = "127.0.0.1"
+
 var VERBOSE = false
+var WORDS = []string{};
 
-const PORT = "2112"
+func LoadWordList() {
+    f, err := os.Open(WORD_LIST)
+    if err == nil {
+        defer f.Close()
+        scanner := bufio.NewScanner(f)
 
-func GetWord(w http.ResponseWriter, r *http.Request) {
-    log_request(r)
-    // Wordlist from: https://github.com/dwyl/english-words/blob/master/words.txt
-    cmd := exec.Command(SHUF_CMD, "-n", "1", CWD+"/words.txt")
-    out, _ := cmd.Output()
+        for scanner.Scan() {
+            WORDS = append(WORDS, strings.TrimSpace(scanner.Text()))
+        }
+    } else {
+        log.Fatal("Can not open '" + WORD_LIST +"'")
+    }
+}
 
-    //w.Header().Set("Access-Control-Allow-Origin", "*")
+func Hook(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-    fmt.Fprintf(w, strings.Title(string(out)))
+        w.Header().Add("Access-Control-Allow-Origin", "*")
+
+        if VERBOSE {
+            log.Printf("\033[97m%-5s %-20s\033[0m %-20s", r.Method,
+                r.URL.RequestURI(), r.UserAgent())
+        }
+
+        if filepath.Base(r.URL.Path) == "index.html" || r.URL.Path == "/" {
+            tmpl := template.Must(template.ParseFiles(WEBROOT + "/index.html"))
+            word := WORDS[rand.Intn(len(WORDS))]
+            tmpl.Execute(w, word)
+
+        } else {
+            next.ServeHTTP(w, r)
+        }
+    })
 }
 
 func main() {
-    vflag := flag.Bool("verbose", false, "Print request information.")
+    vflag := flag.Bool("verbose", false, "Log all requests")
+    port := flag.Int("port", DEFAULT_PORT, "Port to listen on")
+    addr := flag.String("addr", DEFAULT_ADDR, "Bind address")
     flag.Parse()
     VERBOSE = *vflag
 
-    fs := http.FileServer(http.Dir(CWD + "/public/"))
-    http.Handle("/", LogRequest(fs))
-    http.HandleFunc("/word", GetWord)
+    rand.Seed(time.Now().UTC().UnixNano())
+
+    // Read the wordlist into memory once during startup
+    LoadWordList()
+
+    fs := http.FileServer(http.Dir(WEBROOT + "/"))
+    http.Handle("/", Hook(fs))
+
+    listener := *addr + ":" + strconv.Itoa(*port)
 
     if VERBOSE {
-        log.Println("Listening on " + PORT + "...")
+        log.Println("Listening on " + listener + "...")
     }
-    http.ListenAndServe("127.0.0.1:"+PORT, nil)
-}
-
-//============================================================================//
-
-func GetCwd() string {
-    ex, err := os.Executable()
-    if err != nil {
-        panic(err)
+    if err := http.ListenAndServe(listener, nil); err != nil {
+        log.Fatal(err)
     }
-    return filepath.Dir(ex)
-}
-
-func GetShufPath() string {
-    path, err := exec.LookPath("shuf")
-    if err != nil {
-        panic("Could not find 'shuf' executable")
-    }
-    return path
-}
-
-func log_request(r *http.Request) {
-    if VERBOSE {
-        log.Printf("\033[97m%-5s %-20s\033[0m %-20s", r.Method,
-            r.URL.RequestURI(), r.UserAgent())
-    }
-}
-
-func LogRequest(next http.Handler) http.Handler {
-    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        log_request(r)
-        next.ServeHTTP(w, r)
-    })
 }
