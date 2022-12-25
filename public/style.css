@@ -1,5 +1,5 @@
-:root{
-    --def-opacity: 0.7
+:root {
+    --bg: #2f343f;
 }
 
 @font-face {
@@ -7,20 +7,10 @@
     src: url("/Custom.ttf");
 }
 
-@keyframes fade-in {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}
-
-@keyframes fade-in-def {
-    from { opacity: 0; }
-    to   { opacity: var(--def-opacity); }
-}
-
 html {
     background: url('/wall.jpg') no-repeat center center fixed;
     font-family: Custom, Arial;
-    background-color: #2f343f;
+    background-color: var(--bg);
 }
 
 /* Override with a smaller wallpaper if the viewport width is
@@ -38,6 +28,7 @@ html {
 body {
     display: inline-flex;
 }
+
 img {
     width: 20px;
     height: 20px;
@@ -51,46 +42,27 @@ h1,h4{
     text-align: center;
     color: white;
 }
+
 h1 {
-    animation: fade-in 0.5s;
     font-size: 7.4vh;
     width: 100%;
     top: 10%;
 }
 
 h4 {
-    animation: fade-in-def 15.0s;
-    animation-delay: 8s;
-    opacity: var(--def-opacity);
-
     font-family: Times New Roman, Arial;
     font-weight: normal;
     font-style: italic;
     font-size: 3.4vh;
+
+    /* Fade in effect */
+    transition: opacity 0.8s ease-in;
+    opacity: 0.0;
+
     top: 30%;
     width: 70%;
 
     /* Centering */
     left: 50%;
     transform: translate(-50%, 0);
-}
-
-hover:img {
-    opacity: 1.0;
-}
-
-.item {
-    position: relative;
-}
-
-.item:hover::after {
-    content: attr(data-title);
-    padding: 5px;
-    border: 1px solid #000;
-    opacity: 0.8;
-    position: absolute;
-    top: 25px;
-    left: 5px;
-    background: #2f343f;
-    color: white;
 }
