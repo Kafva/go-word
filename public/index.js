@@ -1,6 +1,8 @@
-const showWordDefinition = (data) => {
-    fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${data}`)
-        .then(res => res.json()).then( data => {
+const showWordDefinition = () => {
+    h1 = document.querySelector('h1').innerText
+
+    fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${h1}`)
+        .then(res => res.json()).then(data => {
             console.log(data)
             if (data.length > 0 && 'meanings' in data[0] &&
                 data[0].meanings.length > 0 &&
