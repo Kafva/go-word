@@ -12,10 +12,8 @@ const showWordDefinition = (data) => {
                 const h4 = document.querySelector('h4')
                 h4.innerText = '"' + capitalized + '"'
                 h4.style.opacity = 1.0
-
             }
         })
 }
 
-// setTimeout(showWordDefinition, 5000);
-setTimeout(() => showWordDefinition("centered"), 2000);
+setTimeout(showWordDefinition, 2000);

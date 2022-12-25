@@ -1,17 +1,17 @@
 package main
 
 import (
-	"bufio"
-	"flag"
-	"html/template"
-	"log"
-	"math/rand"
-	"net/http"
-	"os"
-	"path/filepath"
-	"strconv"
-	"strings"
-	"time"
+    "bufio"
+    "flag"
+    "html/template"
+    "log"
+    "math/rand"
+    "net/http"
+    "os"
+    "path/filepath"
+    "strconv"
+    "strings"
+    "time"
 )
 
 const WEBROOT = "./public"
@@ -20,7 +20,7 @@ const DEFAULT_PORT = 2112
 const DEFAULT_ADDR = "127.0.0.1"
 
 var VERBOSE = false
-var WORDS = []string{};
+var WORDS = []string{}
 
 func LoadWordList() {
     f, err := os.Open(WORD_LIST)
@@ -32,7 +32,7 @@ func LoadWordList() {
             WORDS = append(WORDS, strings.TrimSpace(scanner.Text()))
         }
     } else {
-        log.Fatal("Can not open '" + WORD_LIST +"'")
+        log.Fatal("Can not open '" + WORD_LIST + "'")
     }
 }
 
